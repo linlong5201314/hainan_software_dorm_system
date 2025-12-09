@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宿舍管理 - 宿管后台</title>
+    <style>
+        /* 复用统一样式 */
+        {% include 'dorm_manager/styles.html' %}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>宿舍管理系统</h2>
+        <ul>
+            <li><a href="{{ url_for('dorm_manager.dashboard') }}">仪表板</a></li>
+            <li><a href="{{ url_for('dorm_manager.students') }}">学生管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.dormitories') }}" class="active">宿舍管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.repairs') }}">报修管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.visitors') }}">访客管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.dorm_change_requests') }}">宿舍调换</a></li>
+            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <!-- 顶部导航栏 -->
+        <div class="header">
+            <h1>宿舍管理</h1>
+            <div class="user-info">
+                <span>欢迎，{{ dorm_manager.name }}老师</span>
+                <a href="{{ url_for('main.logout') }}">退出登录</a>
+            </div>
+        </div>
+        
+        <!-- 宿舍列表卡片 -->
+        <div class="card">
+            <h2>本楼栋宿舍列表</h2>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="搜索宿舍号..." id="search-input">
+                <button class="btn btn-primary" onclick="searchDormitories()">搜索</button>
+            </div>
+            
+            <div class="table-container">
+                <table id="dormitories-table">
+                <thead>
+                    <tr>
+                        <th>宿舍号</th>
+                        <th>楼栋</th>
+                        <th>楼层</th>
+                        <th>性别</th>
+                        <th>容量</th>
+                        <th>当前人数</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if dormitories %}
+                        {% for dormitory in dormitories %}
+                            <tr>
+                                <td>{{ dormitory.dorm_number }}</td>
+                                <td>{{ dormitory.building }}</td>
+                                <td>{{ dormitory.floor }}</td>
+                                <td>{{ dormitory.gender }}</td>
+                                <td>{{ dormitory.capacity }}</td>
+                                <td>{{ dormitory.current_occupancy }}</td>
+                                <td>
+                                    {% if dormitory.current_occupancy == 0 %}
+                                        <span class="status-available">空房</span>
+                                    {% elif dormitory.current_occupancy < dormitory.capacity %}
+                                        <span class="status-partial">未满</span>
+                                    {% else %}
+                                        <span class="status-full">已满</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="showDormStudents({{ dormitory.id }})">查看学生</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center;">暂无宿舍数据</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 宿舍详情模态框 -->
+    <div id="dormStudentsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="dormStudentsTitle">宿舍学生列表</h3>
+                <button class="modal-close" onclick="closeDormStudentsModal()">&times;</button>
+            </div>
+            <div id="dormStudentsContent">
+                <p>加载中...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 搜索宿舍功能
+        function searchDormitories() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#dormitories-table tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let match = false;
+                
+                cells.forEach(cell => {
+                    if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                        match = true;
+                    }
+                });
+                
+                row.style.display = match ? '' : 'none';
+            });
+        }
+        
+        // 查看宿舍学生
+        function showDormStudents(dormId) {
+            const modal = document.getElementById('dormStudentsModal');
+            const content = document.getElementById('dormStudentsContent');
+            
+            // 显示加载状态
+            content.innerHTML = '<p>加载中...</p>';
+            modal.style.display = 'block';
+            
+            // 发起AJAX请求获取宿舍学生数据
+            fetch(`{{ url_for('dorm_manager.get_dorm_students', dorm_id=0) }}`.replace('0', dormId))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('dormStudentsTitle').textContent = `宿舍 ${data.dorm_number} 学生列表`;
+                        
+                        if (data.students.length > 0) {
+                            let studentsHtml = '<table style="width: 100%; border-collapse: collapse;">';
+                            studentsHtml += '<thead><tr><th>学号</th><th>姓名</th><th>性别</th><th>专业</th><th>年级</th><th>联系电话</th></tr></thead><tbody>';
+                            
+                            data.students.forEach(student => {
+                                studentsHtml += `<tr><td>${student.student_id}</td><td>${student.name}</td><td>${student.gender}</td><td>${student.major}</td><td>${student.grade}</td><td>${student.phone}</td></tr>`;
+                            });
+                            
+                            studentsHtml += '</tbody></table>';
+                            content.innerHTML = studentsHtml;
+                        } else {
+                            content.innerHTML = '<p>该宿舍暂无学生</p>';
+                        }
+                    } else {
+                        content.innerHTML = `<p style="color: red;">${data.message}</p>`;
+                    }
+                })
+                .catch(error => {
+                    content.innerHTML = '<p style="color: red;">获取数据失败，请重试</p>';
+                    console.error('Error:', error);
+                });
+        }
+        
+        // 关闭宿舍学生模态框
+        function closeDormStudentsModal() {
+            document.getElementById('dormStudentsModal').style.display = 'none';
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('dormStudentsModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // 支持回车键搜索
+        document.getElementById('search-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchDormitories();
+            }
+        });
+    </script>
+</body>
+</html>

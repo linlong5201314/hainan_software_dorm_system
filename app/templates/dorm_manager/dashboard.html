@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宿管管理系统 - 仪表盘</title>
+    <style>
+        /* 复用统一样式 */
+        {% include 'dorm_manager/styles.html' %}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>宿舍管理系统</h2>
+        <ul>
+            <li><a href="{{ url_for('dorm_manager.dashboard') }}" class="active">仪表板</a></li>
+            <li><a href="{{ url_for('dorm_manager.students') }}">学生管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.dormitories') }}">宿舍管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.repairs') }}">报修管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.visitors') }}">访客管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.dorm_change_requests') }}">宿舍调换</a></li>
+            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <!-- 顶部导航栏 -->
+        <div class="header">
+            <h1>宿管仪表板</h1>
+            <div class="user-info">
+                <span>欢迎，{{ dorm_manager.name }}老师</span>
+                <a href="{{ url_for('main.logout') }}">退出登录</a>
+            </div>
+        </div>
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>本楼栋学生总数</h3>
+                <div class="value">{{ total_students }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>本楼栋宿舍总数</h3>
+                <div class="value">{{ total_dorms }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>待处理报修</h3>
+                <div class="value">{{ pending_repairs }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>在访访客</h3>
+                <div class="value">{{ current_visitors }}</div>
+            </div>
+        </div>
+        
+        <!-- 最近活动卡片 -->
+        <div class="card">
+            <h2>最近活动</h2>
+            {% if latest_repairs or latest_visitors or latest_dorm_changes %}
+                <ul style="list-style: none; padding: 0;">
+                    {% set all_activities = [] %}
+                    
+                    {% for repair in latest_repairs %}
+                        {% set all_activities = all_activities + [{"type": "repair", "item": repair}] %}
+                    {% endfor %}
+                    
+                    {% for visitor in latest_visitors %}
+                        {% set all_activities = all_activities + [{"type": "visitor", "item": visitor}] %}
+                    {% endfor %}
+                    
+                    {% for request in latest_dorm_changes %}
+                        {% set all_activities = all_activities + [{"type": "dorm_change", "item": request}] %}
+                    {% endfor %}
+                    
+                    {% for activity in all_activities | sort(attribute='item.created_at', reverse=True)[:8] %}
+                        <li style="padding: 15px 0; border-bottom: 1px solid #e1e5e9; display: flex; gap: 15px;">
+                            <div style="width: 8px; height: 8px; border-radius: 50%; margin-top: 8px;
+                                {% if activity.type == 'repair' %}
+                                    background-color: #667eea;
+                                {% elif activity.type == 'visitor' %}
+                                    background-color: #28a745;
+                                {% endif %}
+                            "></div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; color: #333;">
+                                    {% if activity.type == "repair" %}
+                                        新报修：{{ activity.item.title }}
+                                    {% elif activity.type == "visitor" %}
+                                        访客登记：{{ activity.item.name }}
+                                    {% elif activity.type == "dorm_change" %}
+                                        宿舍调换申请：{{ activity.item.student.name }}
+                                    {% endif %}
+                                </div>
+                                <div style="color: #666; font-size: 14px; margin: 5px 0;">
+                                    {% if activity.type == "repair" %}
+                                        学生 {{ activity.item.student.name if activity.item.student else '未知' }} 提交了报修申请
+                                    {% elif activity.type == "visitor" %}
+                                        访客 {{ activity.item.name }} 访问了宿舍 {{ activity.item.dorm_number }}
+                                    {% elif activity.type == "dorm_change" %}
+                                        学生 {{ activity.item.student.name }} 提交了宿舍调换申请
+                                    {% endif %}
+                                </div>
+                                <div style="color: #999; font-size: 12px;">
+                                    {% if activity.type == "repair" %}
+                                        {{ activity.item.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                    {% elif activity.type == "visitor" %}
+                                        {{ activity.item.visit_date.strftime('%Y-%m-%d %H:%M') }}
+                                    {% elif activity.type == "dorm_change" %}
+                                        {{ activity.item.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                    {% endif %}
+                                    <span style="margin-left: 10px; padding: 2px 6px; border-radius: 10px; font-size: 11px; font-weight: bold;
+                                        {% if activity.item.status == 'pending' %}
+                                            background-color: #ffc107; color: #333;
+                                        {% elif activity.item.status == 'processing' %}
+                                            background-color: #17a2b8; color: white;
+                                        {% elif activity.item.status == 'completed' %}
+                                            background-color: #28a745; color: white;
+                                        {% elif activity.item.status == 'in' %}
+                                            background-color: #28a745; color: white;
+                                        {% elif activity.item.status == 'out' %}
+                                            background-color: #6c757d; color: white;
+                                        {% endif %}">
+                                        {{ activity.item.status | capitalize }}
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p style="color: #666;">暂无活动记录</p>
+            {% endif %}
+        </div>
+        
+        <!-- 快速操作卡片 -->
+        <div class="card">
+            <h2>快速操作</h2>
+            <div class="btn-group">
+                <a href="{{ url_for('dorm_manager.repairs') }}" class="btn btn-primary">查看报修列表</a>
+                <a href="{{ url_for('dorm_manager.visitors') }}" class="btn btn-primary">查看访客列表</a>
+                <a href="{{ url_for('dorm_manager.dorm_change_requests') }}" class="btn btn-primary">查看宿舍调换申请</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

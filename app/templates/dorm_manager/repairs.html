@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报修管理 - 宿管后台</title>
+    <style>
+        /* 复用统一样式 */
+        {% include 'dorm_manager/styles.html' %}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>宿舍管理系统</h2>
+        <ul>
+            <li><a href="{{ url_for('dorm_manager.dashboard') }}">仪表板</a></li>
+            <li><a href="{{ url_for('dorm_manager.students') }}">学生管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.dormitories') }}">宿舍管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.repairs') }}" class="active">报修管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.visitors') }}">访客管理</a></li>
+            <li><a href="{{ url_for('dorm_manager.dorm_change_requests') }}">宿舍调换</a></li>
+            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <!-- 顶部导航栏 -->
+        <div class="header">
+            <h1>报修管理</h1>
+            <div class="user-info">
+                <span>欢迎，{{ dorm_manager.name }}老师</span>
+                <a href="{{ url_for('main.logout') }}">退出登录</a>
+            </div>
+        </div>
+        
+        <!-- 报修列表卡片 -->
+        <div class="card">
+            <h2>本楼栋报修列表</h2>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="搜索报修标题..." id="search-input">
+                <button class="btn btn-primary" onclick="searchRepairs()">搜索</button>
+            </div>
+            
+            <div class="table-container">
+                <table id="repairs-table">
+                    <thead>
+                    <tr>
+                        <th>报修标题</th>
+                        <th>报修人</th>
+                        <th>宿舍</th>
+                        <th>报修类型</th>
+                        <th>紧急程度</th>
+                        <th>提交时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if repairs %}
+                        {% for repair in repairs %}
+                            <tr>
+                                <td>{{ repair.title }}</td>
+                                <td>{{ repair.student.name if repair.student else '未知' }}</td>
+                                <td>{{ repair.dormitory.dorm_number if repair.dormitory else repair.location_detail }}</td>
+                                <td>{{ repair.repair_type }}</td>
+                                <td>
+                                    {% if repair.urgent_level == 'urgent' or repair.urgent_level == 'very_urgent' %}
+                                        <span class="urgent">{{ repair.urgent_level }}</span>
+                                    {% else %}
+                                        {{ repair.urgent_level }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ repair.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>
+                                    <span class="status-{{ repair.status }}">{{ repair.status }}</span>
+                                </td>
+                                <td>
+                                    {% if repair.status == 'pending' %}
+                                        <button class="btn btn-primary" onclick="processRepair({{ repair.id }}, 'processing')">开始处理</button>
+                                    {% elif repair.status == 'processing' %}
+                                        <button class="btn btn-success" onclick="processRepair({{ repair.id }}, 'completed')">完成</button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center;">暂无报修记录</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 搜索报修功能
+        function searchRepairs() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#repairs-table tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let match = false;
+                
+                cells.forEach(cell => {
+                    if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                        match = true;
+                    }
+                });
+                
+                row.style.display = match ? '' : 'none';
+            });
+        }
+        
+        // 处理报修
+        function processRepair(repairId, status) {
+            // 发起AJAX请求更新报修状态
+            fetch('{{ url_for('dorm_manager.process_repair') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrf_token')
+                },
+                body: `repair_id=${repairId}&status=${status}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                // 刷新页面
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('处理报修失败，请重试');
+            });
+        }
+        
+        // 获取CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // 支持回车键搜索
+        document.getElementById('search-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchRepairs();
+            }
+        });
+    </script>
+</body>
+</html>

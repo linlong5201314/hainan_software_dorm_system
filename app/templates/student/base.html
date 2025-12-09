@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+        /* 复用全局样式 */
+        {% include 'student/student_styles.html' %}
+        
+        /* 侧边栏切换按钮样式 */
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 侧边栏过渡动画 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            transition: transform 0.3s ease;
+        }
+        
+        /* PC端默认显示侧边栏 */
+        @media (min-width: 769px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+            
+            .sidebar-toggle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏切换按钮 -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <h2>宿舍管理系统</h2>
+        <ul>
+            <li><a href="{{ url_for('student.dashboard') }}" {% if request.endpoint == 'student.dashboard' %}class="active"{% endif %}>仪表板</a></li>
+            <li><a href="{{ url_for('student.my_info') }}" {% if request.endpoint == 'student.my_info' %}class="active"{% endif %}>个人信息</a></li>
+            <li><a href="{{ url_for('student.my_dorm') }}" {% if request.endpoint == 'student.my_dorm' %}class="active"{% endif %}>我的宿舍</a></li>
+            <li><a href="{{ url_for('student.submit_dorm_change') }}" {% if request.endpoint == 'student.submit_dorm_change' %}class="active"{% endif %}>提交宿舍调换申请</a></li>
+            <li><a href="{{ url_for('student.my_dorm_change_requests') }}" {% if request.endpoint == 'student.my_dorm_change_requests' %}class="active"{% endif %}>我的调换申请</a></li>
+            <li><a href="{{ url_for('student.submit_repair') }}" {% if request.endpoint == 'student.submit_repair' %}class="active"{% endif %}>提交报修</a></li>
+            <li><a href="{{ url_for('student.my_repairs') }}" {% if request.endpoint == 'student.my_repairs' %}class="active"{% endif %}>我的报修</a></li>
+            <li><a href="{{ url_for('student.my_utility_bills') }}" {% if request.endpoint == 'student.my_utility_bills' %}class="active"{% endif %}>水电费账单</a></li>
+            <li><a href="{{ url_for('student.visitor_register') }}" {% if request.endpoint == 'student.visitor_register' %}class="active"{% endif %}>访客登记</a></li>
+            <li><a href="{{ url_for('student.my_visitors') }}" {% if request.endpoint == 'student.my_visitors' %}class="active"{% endif %}>我的访客</a></li>
+            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
+        </ul>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 顶部导航栏 -->
+        <div class="header">
+            <h1>{% block header %}{% endblock %}</h1>
+            <div class="user-info">
+                <span>欢迎，{{ student.name if student else current_user.username }}</span>
+                <a href="{{ url_for('main.logout') }}">退出登录</a>
+            </div>
+        </div>
+        
+        <!-- 页面内容 -->
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- 侧边栏切换JavaScript -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // 点击主内容区域关闭侧边栏（移动端）
+        document.querySelector('.main-content').addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

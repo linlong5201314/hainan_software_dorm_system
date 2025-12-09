@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加宿舍</title>
+    <style>
+        /* 复用dashboard.html的样式 */
+        {% include 'admin/styles.html' %}
+        
+        /* 次要按钮样式 */
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>宿舍管理系统</h2>
+        <ul>
+            <li><a href="{{ url_for('admin.dashboard') }}">仪表板</a></li>
+            <li><a href="{{ url_for('admin.students') }}">学生管理</a></li>
+            <li><a href="{{ url_for('admin.dormitories') }}" class="active">宿舍管理</a></li>
+            <li><a href="{{ url_for('admin.smart_allocate_dorm') }}">智能分配宿舍</a></li>
+            <li><a href="{{ url_for('admin.dorm_managers') }}">宿管管理</a></li>
+            <li><a href="{{ url_for('admin.repairs') }}">报修管理</a></li>
+            <li><a href="{{ url_for('admin.utility_bills') }}">水电费管理</a></li>
+            <li><a href="{{ url_for('admin.payments') }}">缴费记录</a></li>
+            <li><a href="{{ url_for('admin.visitors') }}">访客管理</a></li>
+            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+            <!-- 顶部导航栏 -->
+            <div class="header">
+                <h1>添加宿舍</h1>
+                <div class="user-info">
+                    <span>欢迎，管理员</span>
+                    <a href="{{ url_for('main.logout') }}">退出登录</a>
+                </div>
+            </div>
+            
+            <!-- 添加宿舍表单 -->
+            <div class="card">
+                <h2>宿舍信息</h2>
+                <form method="POST" action="{{ url_for('admin.add_dormitory') }}">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dorm_number">宿舍号</label>
+                            <input type="text" id="dorm_number" name="dorm_number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="building">楼栋</label>
+                            <input type="text" id="building" name="building" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="floor">楼层</label>
+                            <input type="number" id="floor" name="floor" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">性别</label>
+                            <select id="gender" name="gender" required>
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="capacity">容量</label>
+                            <input type="number" id="capacity" name="capacity" min="1" max="10" required>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button type="submit" class="btn btn-primary">添加宿舍</button>
+                        <a href="{{ url_for('admin.dormitories') }}" class="btn btn-secondary" style="background-color: #6c757d; margin-left: 10px;">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
+</body>
+</html>

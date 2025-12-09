@@ -1,0 +1,123 @@
+{% extends 'admin/dashboard.html' %}
+{% block title %}添加水电费账单 - 管理员后台{% endblock %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- 左侧导航 -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                            <i class="fas fa-home"></i>
+                            仪表板
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.students') }}">
+                            <i class="fas fa-users"></i>
+                            学生管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.dormitories') }}">
+                            <i class="fas fa-building"></i>
+                            宿舍管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.dorm_managers') }}">
+                            <i class="fas fa-user-tie"></i>
+                            宿管管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.smart_allocate_dorm') }}">
+                            <i class="fas fa-robot"></i>
+                            智能分配宿舍
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.repairs') }}">
+                            <i class="fas fa-tools"></i>
+                            报修管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('admin.utility_bills') }}">
+                            <i class="fas fa-euro-sign"></i>
+                            水电费管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.payments') }}">
+                            <i class="fas fa-credit-card"></i>
+                            缴费记录
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.visitors') }}">
+                            <i class="fas fa-id-card"></i>
+                            访客管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">
+                            <i class="fas fa-sign-out-alt"></i>
+                            退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- 右侧内容区域 -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">添加水电费账单</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{{ url_for('admin.utility_bills') }}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 返回账单列表
+                    </a>
+                </div>
+            </div>
+
+            <!-- 添加水电费账单表单 -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="dorm_id" class="form-label">宿舍</label>
+                                <select class="form-select" id="dorm_id" name="dorm_id" required>
+                                    <option value="">请选择宿舍</option>
+                                    {% for dorm in dormitories %}
+                                    <option value="{{ dorm.id }}">{{ dorm.building }}栋{{ dorm.dorm_number }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="month" class="form-label">月份</label>
+                                <input type="month" class="form-control" id="month" name="month" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="electricity" class="form-label">用电量(度)</label>
+                                <input type="number" class="form-control" id="electricity" name="electricity" step="0.01" min="0" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="water" class="form-label">用水量(吨)</label>
+                                <input type="number" class="form-control" id="water" name="water" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">添加账单</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+{% endblock %}

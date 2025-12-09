@@ -1,0 +1,71 @@
+{% extends 'student/base.html' %}
+
+{% block title %}学生仪表板{% endblock %}
+{% block header %}学生仪表板{% endblock %}
+
+{% block content %}
+    <!-- 欢迎卡片 -->
+    <div class="welcome-card">
+        <h2>欢迎回来，{{ student.name }}同学！</h2>
+        <p>这里是你的宿舍管理系统专属页面</p>
+    </div>
+    
+    <!-- 功能卡片 -->
+    <div class="features-grid">
+        <a href="{{ url_for('student.my_info') }}" class="feature-card" style="text-decoration: none;">
+            <div class="icon">👤</div>
+            <h3>个人信息</h3>
+            <p>查看和管理你的个人信息</p>
+        </a>
+        <a href="{{ url_for('student.my_dorm') }}" class="feature-card" style="text-decoration: none;">
+            <div class="icon">🏠</div>
+            <h3>我的宿舍</h3>
+            <p>查看宿舍详细信息</p>
+        </a>
+        <a href="{{ url_for('student.submit_repair') }}" class="feature-card" style="text-decoration: none;">
+            <div class="icon">🔧</div>
+            <h3>提交报修</h3>
+            <p>快速提交宿舍、实训楼、教学楼等维修申请</p>
+        </a>
+        <a href="{{ url_for('student.my_repairs') }}" class="feature-card" style="text-decoration: none;">
+            <div class="icon">📋</div>
+            <h3>我的报修</h3>
+            <p>查看报修进度和历史</p>
+        </a>
+        <a href="{{ url_for('student.visitor_register') }}" class="feature-card" style="text-decoration: none;">
+            <div class="icon">👥</div>
+            <h3>访客登记</h3>
+            <p>登记来访客人信息</p>
+        </a>
+        <a href="{{ url_for('student.my_visitors') }}" class="feature-card" style="text-decoration: none;">
+            <div class="icon">📝</div>
+            <h3>我的访客</h3>
+            <p>查看访客记录</p>
+        </a>
+    </div>
+    
+    <!-- 个人信息卡片 -->
+    <div class="info-card">
+        <h2>个人概览</h2>
+        <div class="info-item">
+            <span class="label">学号</span>
+            <span class="value">{{ student.student_id }}</span>
+        </div>
+        <div class="info-item">
+            <span class="label">姓名</span>
+            <span class="value">{{ student.name }}</span>
+        </div>
+        <div class="info-item">
+            <span class="label">专业</span>
+            <span class="value">{{ student.major }}</span>
+        </div>
+        <div class="info-item">
+            <span class="label">年级</span>
+            <span class="value">{{ student.grade }}</span>
+        </div>
+        <div class="info-item">
+            <span class="label">宿舍</span>
+            <span class="value">{{ student.dormitory.dorm_number if student.dormitory else '未分配' }}</span>
+        </div>
+    </div>
+{% endblock %}

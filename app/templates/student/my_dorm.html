@@ -1,0 +1,130 @@
+{% extends 'student/base.html' %}
+
+{% block title %}我的宿舍{% endblock %}
+{% block header %}我的宿舍{% endblock %}
+
+{% block content %}
+    <style>
+        /* 信息表格样式 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-label {
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        /* 宿舍成员样式 */
+        .roommates-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+        }
+        
+        .roommates-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .roommate-card {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e1e5e9;
+        }
+        
+        .roommate-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .roommate-major {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* 无宿舍样式 */
+        .no-dorm {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .no-dorm-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+    </style>
+    
+    <!-- 宿舍信息卡片 -->
+    <div class="card">
+        <h2>宿舍详情</h2>
+        {% if dorm %}
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">宿舍号</span>
+                    <span class="info-value">{{ dorm.dorm_number }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">楼栋</span>
+                    <span class="info-value">{{ dorm.building }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">楼层</span>
+                    <span class="info-value">{{ dorm.floor }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">性别</span>
+                    <span class="info-value">{{ dorm.gender }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">容量</span>
+                    <span class="info-value">{{ dorm.capacity }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">当前入住</span>
+                    <span class="info-value">{{ dorm.current_occupancy }}</span>
+                </div>
+            </div>
+            
+            <!-- 宿舍成员 -->
+            <div class="roommates-section">
+                <h3>宿舍成员</h3>
+                <div class="roommates-list">
+                    {% for student in dorm.students %}
+                    <div class="roommate-card">
+                        <div class="roommate-name">{{ student.name }}</div>
+                        <div class="roommate-major">{{ student.major }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="no-dorm">
+                <div class="no-dorm-icon">🏠</div>
+                <h3>您还未分配宿舍</h3>
+                <p>请联系管理员分配宿舍</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
