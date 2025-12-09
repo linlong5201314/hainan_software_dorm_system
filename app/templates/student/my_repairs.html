@@ -66,38 +66,40 @@
         <a href="{{ url_for('student.submit_repair') }}" class="btn">提交新报修</a>
         
         {% if repairs %}
-        <table>
-            <thead>
-                <tr>
-                    <th>报修标题</th>
-                    <th>报修类型</th>
-                    <th>报修场所</th>
-                    <th>具体位置</th>
-                    <th>状态</th>
-                    <th>提交时间</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for repair in repairs %}
-                <tr>
-                    <td>{{ repair.title }}</td>
-                    <td>{{ repair.repair_type }}</td>
-                    <td>{{ repair.location_type }}</td>
-                    <td>{{ repair.location_detail }}</td>
-                    <td>
-                        {% if repair.status == 'pending' %}
-                            <span class="status-pending">待处理</span>
-                        {% elif repair.status == 'processing' %}
-                            <span class="status-processing">处理中</span>
-                        {% else %}
-                            <span class="status-completed">已完成</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ repair.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>报修标题</th>
+                        <th>报修类型</th>
+                        <th>报修场所</th>
+                        <th>具体位置</th>
+                        <th>状态</th>
+                        <th>提交时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for repair in repairs %}
+                    <tr>
+                        <td>{{ repair.title }}</td>
+                        <td>{{ repair.repair_type }}</td>
+                        <td>{{ repair.location_type }}</td>
+                        <td>{{ repair.location_detail }}</td>
+                        <td>
+                            {% if repair.status == 'pending' %}
+                                <span class="status-pending">待处理</span>
+                            {% elif repair.status == 'processing' %}
+                                <span class="status-processing">处理中</span>
+                            {% else %}
+                                <span class="status-completed">已完成</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ repair.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
         <div class="no-data">
             <div class="no-data-icon">📋</div>

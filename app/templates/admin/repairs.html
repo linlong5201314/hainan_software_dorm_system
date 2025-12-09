@@ -1,72 +1,13 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>报修管理</title>
-    <style>
-        /* 复用dashboard.html的样式 */
-        {% include 'admin/styles.html' %}
-        
-        /* 状态标签样式 */
-        .status-pending {
-            background-color: #ffc107;
-            color: #333;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .status-processing {
-            background-color: #17a2b8;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .status-completed {
-            background-color: #28a745;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <h2>宿舍管理系统</h2>
-        <ul>
-            <li><a href="{{ url_for('admin.dashboard') }}">仪表板</a></li>
-            <li><a href="{{ url_for('admin.students') }}">学生管理</a></li>
-            <li><a href="{{ url_for('admin.dormitories') }}">宿舍管理</a></li>
-            <li><a href="{{ url_for('admin.smart_allocate_dorm') }}">智能分配宿舍</a></li>
-            <li><a href="{{ url_for('admin.dorm_managers') }}">宿管管理</a></li>
-            <li><a href="{{ url_for('admin.repairs') }}" class="active">报修管理</a></li>
-            <li><a href="{{ url_for('admin.utility_bills') }}">水电费管理</a></li>
-            <li><a href="{{ url_for('admin.payments') }}">缴费记录</a></li>
-            <li><a href="{{ url_for('admin.visitors') }}">访客管理</a></li>
-            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
-        </ul>
-    </div>
-    
-    <div class="main-content">
-        <!-- 顶部导航栏 -->
-        <div class="header">
-            <h1>报修管理</h1>
-            <div class="user-info">
-                <span>欢迎，管理员</span>
-                <a href="{{ url_for('main.logout') }}">退出登录</a>
-            </div>
-        </div>
-        
-        <!-- 报修列表卡片 -->
-        <div class="card">
-            <h2>报修列表</h2>
+{% extends 'admin/base.html' %}
+
+{% block title %}报修管理{% endblock %}
+{% block header %}报修管理{% endblock %}
+
+{% block content %}
+    <!-- 报修列表卡片 -->
+    <div class="card">
+        <h2>报修列表</h2>
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
@@ -106,11 +47,11 @@
     </div>
     
     <!-- 保修详情模态框 -->
-    <div id="repairModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-        <div class="modal-content" style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 800px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 id="repairModalTitle" style="margin: 0;\ color: #333;">保修详情</h2>
-                <span class="close" onclick="closeRepairModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+    <div id="repairModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="repairModalTitle">保修详情</h3>
+                <button class="modal-close" onclick="closeRepairModal()">&times;</button>
             </div>
             <div id="repairModalBody">
                 <!-- 保修详情将通过JavaScript动态加载 -->
@@ -119,24 +60,24 @@
     </div>
     
     <!-- 保修处理模态框 -->
-    <div id="processModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-        <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 50%; max-width: 500px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 id="processModalTitle" style="margin: 0;\ color: #333;">处理保修</h2>
-                <span class="close" onclick="closeProcessModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+    <div id="processModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="processModalTitle">处理保修</h3>
+                <button class="modal-close" onclick="closeProcessModal()">&times;</button>
             </div>
             <form id="processForm" method="POST" action="{{ url_for('admin.process_repair') }}">
                 <input type="hidden" id="repairId" name="repair_id">
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="status" style="display: block; margin-bottom: 10px; font-weight: bold;">处理状态</label>
-                    <select id="status" name="status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
+                <div class="form-group">
+                    <label for="status">处理状态</label>
+                    <select id="status" name="status">
                         <option value="pending">待处理</option>
                         <option value="processing">处理中</option>
                         <option value="completed">已完成</option>
                     </select>
                 </div>
-                <div style="text-align: center;">
-                    <button type="submit" class="btn btn-success" style="padding: 10px 30px; font-size: 16px;">保存状态</button>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success">保存状态</button>
                 </div>
             </form>
         </div>
@@ -150,7 +91,7 @@
             
             // 显示加载状态
             modalBody.innerHTML = '<div style="text-align: center; padding: 50px;"><p>加载中...</p></div>';
-            modal.style.display = 'block';
+            modal.classList.add('active');
             
             // 获取保修详情
             fetch(`/admin/get_repair_details/${repairId}`)
@@ -189,7 +130,7 @@
         }
         
         function closeRepairModal() {
-            document.getElementById('repairModal').style.display = 'none';
+            document.getElementById('repairModal').classList.remove('active');
         }
         
         // 保修处理模态框控制函数
@@ -200,26 +141,24 @@
             
             repairIdInput.value = repairId;
             statusSelect.value = currentStatus;
-            modal.style.display = 'block';
+            modal.classList.add('active');
         }
         
         function closeProcessModal() {
-            document.getElementById('processModal').style.display = 'none';
+            document.getElementById('processModal').classList.remove('active');
         }
         
         // 点击模态框外部关闭
-        window.onclick = function(event) {
-            const repairModal = document.getElementById('repairModal');
-            const processModal = document.getElementById('processModal');
-            
-            if (event.target == repairModal) {
+        document.getElementById('repairModal').addEventListener('click', function(e) {
+            if (e.target === this) {
                 closeRepairModal();
             }
-            
-            if (event.target == processModal) {
+        });
+        
+        document.getElementById('processModal').addEventListener('click', function(e) {
+            if (e.target === this) {
                 closeProcessModal();
             }
-        }
+        });
     </script>
-</body>
-</html>
+{% endblock %}

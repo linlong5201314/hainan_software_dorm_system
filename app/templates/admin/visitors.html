@@ -1,13 +1,7 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>访客管理</title>
+{% extends 'admin/base.html' %}
+{% block title %}访客管理 - 管理员后台{% endblock %}
+{% block styles %}
     <style>
-        /* 复用dashboard.html的样式 */
-        {% include 'admin/styles.html' %}
-        
         /* 状态标签样式 */
         .status-in {
             background-color: #28a745;
@@ -27,41 +21,16 @@
             font-weight: bold;
         }
     </style>
-</head>
-<body>
-    <div class="sidebar">
-        <h2>宿舍管理系统</h2>
-        <ul>
-            <li><a href="{{ url_for('admin.dashboard') }}">仪表板</a></li>
-            <li><a href="{{ url_for('admin.students') }}">学生管理</a></li>
-            <li><a href="{{ url_for('admin.dormitories') }}">宿舍管理</a></li>
-            <li><a href="{{ url_for('admin.smart_allocate_dorm') }}">智能分配宿舍</a></li>
-            <li><a href="{{ url_for('admin.dorm_managers') }}">宿管管理</a></li>
-            <li><a href="{{ url_for('admin.repairs') }}">报修管理</a></li>
-            <li><a href="{{ url_for('admin.utility_bills') }}">水电费管理</a></li>
-            <li><a href="{{ url_for('admin.payments') }}">缴费记录</a></li>
-            <li><a href="{{ url_for('admin.visitors') }}" class="active">访客管理</a></li>
-            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
-        </ul>
-    </div>
-    
-    <div class="main-content">
-        <!-- 顶部导航栏 -->
-        <div class="header">
-            <h1>访客管理</h1>
-            <div class="user-info">
-                <span>欢迎，管理员</span>
-                <a href="{{ url_for('main.logout') }}">退出登录</a>
-            </div>
-        </div>
-        
+{% endblock %}
+{% block content %}
         <!-- 访客列表卡片 -->
         <div class="card">
-            <h2>访客列表</h2>
+            <h2>访客管理</h2>
             <div style="margin-bottom: 20px;">
                 <a href="{{ url_for('student.visitor_register') }}" class="btn btn-primary">登记访客</a>
             </div>
-            <table>
+            <div class="table-container">
+                <table class="table table-striped table-sm">
                 <thead>
                     <tr>
                         <th>访客姓名</th>
@@ -103,58 +72,58 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table>
-        </div>
-    </div>
-    
-    <!-- 访客详情模态框 -->
-    <div id="visitorModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-        <div class="modal-content" style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 id="visitorModalTitle" style="margin: 0;\ color: #333;">访客详情</h2>
-                <span class="close" onclick="closeVisitorModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-            </div>
-            <div id="visitorModalBody">
-                <!-- 访客详情将通过JavaScript动态加载 -->
+                </table>
             </div>
         </div>
-    </div>
-    
-    <!-- 确认操作模态框 -->
-    <div id="confirmModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-        <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 30px; border: 1px solid #888; width: 50%; max-width: 400px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 id="confirmModalTitle" style="margin: 0;\ color: #333;">确认操作</h2>
-                <span class="close" onclick="closeConfirmModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-            </div>
-            <div id="confirmModalBody" style="margin-bottom: 25px;">
-                <p id="confirmMessage">确定要执行此操作吗？</p>
-            </div>
-            <div style="display: flex; justify-content: center; gap: 15px;">
-                <button id="confirmBtn" class="btn btn-primary" style="padding: 10px 30px; font-size: 16px;">确认</button>
-                <button id="cancelBtn" class="btn btn-secondary" style="padding: 10px 30px; font-size: 16px; background-color: #6c757d;">取消</button>
+        
+        <!-- 访客详情模态框 -->
+        <div id="visitorModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="visitorModalTitle">访客详情</h2>
+                    <span class="close" onclick="closeVisitorModal()">&times;</span>
+                </div>
+                <div id="visitorModalBody">
+                    <!-- 访客详情将通过JavaScript动态加载 -->
+                </div>
             </div>
         </div>
-    </div>
-    
-    <!-- 结果提示模态框 -->
-    <div id="resultModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-        <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 30px; border: 1px solid #888; width: 50%; max-width: 400px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 id="resultModalTitle" style="margin: 0;\ color: #333;">操作结果</h2>
-                <span class="close" onclick="closeResultModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-            </div>
-            <div id="resultModalBody" style="margin-bottom: 25px; text-align: center;">
-                <div id="resultIcon" style="font-size: 48px; margin-bottom: 15px;">✅</div>
-                <p id="resultMessage" style="font-size: 18px;">操作成功！</p>
-            </div>
-            <div style="text-align: center;">
-                <button id="resultBtn" class="btn btn-primary" style="padding: 10px 30px; font-size: 16px;">确定</button>
+        
+        <!-- 确认操作模态框 -->
+        <div id="confirmModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="confirmModalTitle">确认操作</h2>
+                    <span class="close" onclick="closeConfirmModal()">&times;</span>
+                </div>
+                <div id="confirmModalBody">
+                    <p id="confirmMessage">确定要执行此操作吗？</p>
+                </div>
+                <div>
+                    <button id="confirmBtn" class="btn btn-primary">确认</button>
+                    <button id="cancelBtn" class="btn btn-secondary">取消</button>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <script>
+        
+        <!-- 结果提示模态框 -->
+        <div id="resultModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="resultModalTitle">操作结果</h2>
+                    <span class="close" onclick="closeResultModal()">&times;</span>
+                </div>
+                <div id="resultModalBody">
+                    <div id="resultIcon">✅</div>
+                    <p id="resultMessage">操作成功！</p>
+                </div>
+                <div>
+                    <button id="resultBtn" class="btn btn-primary">确定</button>
+                </div>
+            </div>
+        </div>
+        
+        <script>
         // 访客详情模态框控制函数
         function showVisitorDetails(visitorId) {
             const modal = document.getElementById('visitorModal');
@@ -170,8 +139,8 @@
                 .then(data => {
                     if (data.success) {
                         let detailsHtml = `
-                            <div style="line-height: 1.8;">
-                                <h3 style="color: #667eea; margin-top: 0;">访客：${data.visitor.name}</h3>
+                            <div>
+                                <h3>访客：${data.visitor.name}</h3>
                                 <p><strong>身份证号：</strong>${data.visitor.id_card}</p>
                                 <p><strong>联系电话：</strong>${data.visitor.phone}</p>
                                 <p><strong>访问宿舍：</strong>${data.visitor.dorm_number}</p>
@@ -309,6 +278,5 @@
                 }
             });
         }
-    </script>
-</body>
-</html>
+        </script>
+{% endblock %}

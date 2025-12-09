@@ -1,76 +1,42 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宿管管理 - 管理员后台</title>
-    <style>
-        /* 复用全局样式 */
-        {% include 'admin/styles.html' %}
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <h2>宿舍管理系统</h2>
-        <ul>
-            <li><a href="{{ url_for('admin.dashboard') }}">仪表板</a></li>
-            <li><a href="{{ url_for('admin.students') }}">学生管理</a></li>
-            <li><a href="{{ url_for('admin.dormitories') }}">宿舍管理</a></li>
-            <li><a href="{{ url_for('admin.smart_allocate_dorm') }}">智能分配宿舍</a></li>
-            <li><a href="{{ url_for('admin.dorm_managers') }}" class="active">宿管管理</a></li>
-            <li><a href="{{ url_for('admin.repairs') }}">报修管理</a></li>
-            <li><a href="{{ url_for('admin.utility_bills') }}">水电费管理</a></li>
-            <li><a href="{{ url_for('admin.payments') }}">缴费记录</a></li>
-            <li><a href="{{ url_for('admin.visitors') }}">访客管理</a></li>
-            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
-        </ul>
-    </div>
-    
-    <div class="main-content">
-        <!-- 顶部导航栏 -->
-        <div class="header">
-            <h1>宿管管理</h1>
-            <div class="user-info">
-                <span>欢迎，管理员</span>
-                <a href="{{ url_for('main.logout') }}">退出登录</a>
-            </div>
+{% extends 'admin/base.html' %}
+
+{% block title %}宿管管理 - 管理员后台{% endblock %}
+{% block header %}宿管管理{% endblock %}
+
+{% block content %}
+    <!-- 宿管管理内容 -->
+    <div class="card">
+        <h2>宿管管理</h2>
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('admin.add_dorm_manager') }}" class="btn btn-primary">添加宿管</a>
         </div>
         
-        <!-- 宿管管理内容 -->
-        <div class="card">
-            <h2>宿管管理</h2>
-            <div style="margin-bottom: 20px;">
-                <a href="{{ url_for('admin.add_dorm_manager') }}" class="btn btn-primary">添加宿管</a>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>用户名</th>
-                            <th>姓名</th>
-                            <th>联系电话</th>
-                            <th>负责楼栋</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for manager in dorm_managers %}
-                        <tr>
-                            <td>{{ manager.user.username }}</td>
-                            <td>{{ manager.name }}</td>
-                            <td>{{ manager.phone }}</td>
-                            <td>{{ manager.responsible_building }}</td>
-                            <td>
-                                <a href="{{ url_for('admin.edit_dorm_manager', manager_id=manager.id) }}" class="btn btn-primary">编辑</a>
-                                <a href="{{ url_for('admin.delete_dorm_manager', manager_id=manager.id) }}" class="btn btn-danger" onclick="return confirm('确定要删除该宿管吗？')">删除</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>姓名</th>
+                        <th>联系电话</th>
+                        <th>负责楼栋</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for manager in dorm_managers %}
+                    <tr>
+                        <td>{{ manager.user.username }}</td>
+                        <td>{{ manager.name }}</td>
+                        <td>{{ manager.phone }}</td>
+                        <td>{{ manager.responsible_building }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_dorm_manager', manager_id=manager.id) }}" class="btn btn-primary">编辑</a>
+                            <a href="{{ url_for('admin.delete_dorm_manager', manager_id=manager.id) }}" class="btn btn-danger" onclick="return confirm('确定要删除该宿管吗？')">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}

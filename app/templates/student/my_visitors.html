@@ -60,46 +60,48 @@
         </div>
         
         {% if visitors %}
-        <table>
-            <thead>
-                <tr>
-                    <th>访客姓名</th>
-                    <th>身份证号</th>
-                    <th>联系电话</th>
-                    <th>访问目的</th>
-                    <th>访问时间</th>
-                    <th>离开时间</th>
-                    <th>状态</th>
-                    <th>访客二维码</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for visitor in visitors %}
-                <tr>
-                    <td>{{ visitor.name }}</td>
-                    <td>{{ visitor.id_card }}</td>
-                    <td>{{ visitor.phone }}</td>
-                    <td>{{ visitor.purpose }}</td>
-                    <td>{{ visitor.visit_date.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>{{ visitor.leave_date.strftime('%Y-%m-%d %H:%M') if visitor.leave_date else '未离开' }}</td>
-                    <td>
-                        {% if visitor.status == 'in' %}
-                            <span class="status-in">在访</span>
-                        {% else %}
-                            <span class="status-out">已离开</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if visitor.qr_code %}
-                            <button class="qr-btn" onclick="showQRCode('{{ url_for('static', filename=visitor.qr_code) }}', '{{ visitor.name }}')">查看二维码</button>
-                        {% else %}
-                            无
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>访客姓名</th>
+                        <th>身份证号</th>
+                        <th>联系电话</th>
+                        <th>访问目的</th>
+                        <th>访问时间</th>
+                        <th>离开时间</th>
+                        <th>状态</th>
+                        <th>访客二维码</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visitor in visitors %}
+                    <tr>
+                        <td>{{ visitor.name }}</td>
+                        <td>{{ visitor.id_card }}</td>
+                        <td>{{ visitor.phone }}</td>
+                        <td>{{ visitor.purpose }}</td>
+                        <td>{{ visitor.visit_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ visitor.leave_date.strftime('%Y-%m-%d %H:%M') if visitor.leave_date else '未离开' }}</td>
+                        <td>
+                            {% if visitor.status == 'in' %}
+                                <span class="status-in">在访</span>
+                            {% else %}
+                                <span class="status-out">已离开</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if visitor.qr_code %}
+                                <button class="qr-btn" onclick="showQRCode('{{ url_for('static', filename=visitor.qr_code) }}', '{{ visitor.name }}')">查看二维码</button>
+                            {% else %}
+                                无
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
         <div style="text-align: center; padding: 50px; color: #999;">
             <p>暂无访客记录</p>

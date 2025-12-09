@@ -1,66 +1,32 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能宿舍分配 - 管理员后台</title>
-    <style>
-        /* 复用全局样式 */
-        {% include 'admin/styles.html' %}
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <h2>宿舍管理系统</h2>
+{% extends 'admin/base.html' %}
+
+{% block title %}智能宿舍分配 - 管理员后台{% endblock %}
+{% block header %}智能宿舍分配{% endblock %}
+
+{% block content %}
+    <!-- 智能分配说明 -->
+    <div class="card">
+        <h2>智能分配规则</h2>
+        <p>系统将按照以下规则为未分配宿舍的学生自动分配宿舍：</p>
         <ul>
-            <li><a href="{{ url_for('admin.dashboard') }}">仪表板</a></li>
-            <li><a href="{{ url_for('admin.students') }}">学生管理</a></li>
-            <li><a href="{{ url_for('admin.dormitories') }}">宿舍管理</a></li>
-            <li><a href="{{ url_for('admin.smart_allocate_dorm') }}" class="active">智能分配宿舍</a></li>
-            <li><a href="{{ url_for('admin.dorm_managers') }}">宿管管理</a></li>
-            <li><a href="{{ url_for('admin.repairs') }}">报修管理</a></li>
-            <li><a href="{{ url_for('admin.utility_bills') }}">水电费管理</a></li>
-            <li><a href="{{ url_for('admin.payments') }}">缴费记录</a></li>
-            <li><a href="{{ url_for('admin.visitors') }}">访客管理</a></li>
-            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
+            <li>优先分配同性别、未满员的宿舍</li>
+            <li>优先考虑同专业同年级的学生分配到同一宿舍</li>
+            <li>其次考虑同专业的学生分配到同一宿舍</li>
+            <li>再次考虑同年级的学生分配到同一宿舍</li>
+            <li>选择当前入住人数最多的宿舍进行分配，以达到均衡分配的目的</li>
         </ul>
     </div>
     
-    <div class="main-content">
-        <!-- 顶部导航栏 -->
-        <div class="header">
-            <h1>智能宿舍分配</h1>
-            <div class="user-info">
-                <span>欢迎，管理员</span>
-                <a href="{{ url_for('main.logout') }}">退出登录</a>
-            </div>
-        </div>
-        
-        <!-- 智能分配说明 -->
-        <div class="card">
-            <h2>智能分配规则</h2>
-            <p>系统将按照以下规则为未分配宿舍的学生自动分配宿舍：</p>
-            <ul>
-                <li>优先分配同性别、未满员的宿舍</li>
-                <li>优先考虑同专业同年级的学生分配到同一宿舍</li>
-                <li>其次考虑同专业的学生分配到同一宿舍</li>
-                <li>再次考虑同年级的学生分配到同一宿舍</li>
-                <li>选择当前入住人数最多的宿舍进行分配，以达到均衡分配的目的</li>
-            </ul>
-        </div>
-        
-        <!-- 分配按钮 -->
-        <div class="card">
-            <div class="card-body text-center">
-                <h5 class="card-title">未分配宿舍学生数量</h5>
-                <p class="display-4 text-primary mb-4">{{ unallocated_count }}</p>
-                <form method="POST">
-                    <button type="submit" class="btn btn-lg btn-primary" {% if unallocated_count == 0 %}disabled{% endif %}>
-                        开始智能分配
-                    </button>
-                </form>
-            </div>
+    <!-- 分配按钮 -->
+    <div class="card">
+        <div class="card-body text-center">
+            <h5 class="card-title">未分配宿舍学生数量</h5>
+            <p class="display-4 text-primary mb-4">{{ unallocated_count }}</p>
+            <form method="POST">
+                <button type="submit" class="btn btn-lg btn-primary" {% if unallocated_count == 0 %}disabled{% endif %}>
+                    开始智能分配
+                </button>
+            </form>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}

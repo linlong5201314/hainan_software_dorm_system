@@ -1,127 +1,71 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理员仪表板</title>
-    <style>
-        /* 复用全局样式 */
-        {% include 'admin/styles.html' %}
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <h2>宿舍管理系统</h2>
-        <ul>
-            <li><a href="{{ url_for('admin.dashboard') }}" class="active">仪表板</a></li>
-            <li><a href="{{ url_for('admin.students') }}">学生管理</a></li>
-            <li><a href="{{ url_for('admin.dormitories') }}">宿舍管理</a></li>
-            <li><a href="{{ url_for('admin.smart_allocate_dorm') }}">智能分配宿舍</a></li>
-            <li><a href="{{ url_for('admin.dorm_managers') }}">宿管管理</a></li>
-            <li><a href="{{ url_for('admin.repairs') }}">报修管理</a></li>
-            <li><a href="{{ url_for('admin.utility_bills') }}">水电费管理</a></li>
-            <li><a href="{{ url_for('admin.payments') }}">缴费记录</a></li>
-            <li><a href="{{ url_for('admin.visitors') }}">访客管理</a></li>
-            <li><a href="{{ url_for('main.logout') }}">退出登录</a></li>
-        </ul>
-    </div>
-    
-    <div class="main-content">
-            <!-- 顶部导航栏 -->
-            <div class="header">
-                <h1>管理员仪表板</h1>
-                <div class="user-info">
-                    <span>欢迎，管理员</span>
-                    <a href="{{ url_for('main.logout') }}">退出登录</a>
-                </div>
-            </div>
-            
-            <!-- 统计卡片 -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>总学生数</h3>
-                    <div class="value">{{ total_students }}</div>
-                </div>
-                <div class="stat-card">
-                    <h3>总宿舍数</h3>
-                    <div class="value">{{ total_dorms }}</div>
-                </div>
-                <div class="stat-card">
-                    <h3>总报修数</h3>
-                    <div class="value">{{ total_repairs }}</div>
-                </div>
-                <div class="stat-card">
-                    <h3>待处理报修</h3>
-                    <div class="value">{{ pending_repairs }}</div>
-                </div>
-            </div>
-            
-            <!-- 最近活动卡片 -->
-            <div class="card">
-                <h2>最近活动</h2>
-                {% if activities %}
-                    <ul style="list-style: none; padding: 0;">
-                        {% for activity in activities %}
-                            <li style="padding: 15px 0; border-bottom: 1px solid #e1e5e9; display: flex; gap: 15px;">
-                                <div style="width: 8px; height: 8px; border-radius: 50%; margin-top: 8px;
-                                    {% if activity.type == 'repair' %}
-                                        background-color: #667eea;
-                                    {% elif activity.type == 'visitor' %}
-                                        background-color: #28a745;
-                                    {% endif %}
-                                "></div>
-                                <div style="flex: 1;">
-                                    <div style="font-weight: bold; color: #333;">{{ activity.title }}</div>
-                                    <div style="color: #666; font-size: 14px; margin: 5px 0;">{{ activity.description }}</div>
-                                    <div style="color: #999; font-size: 12px;">
-                                        {{ activity.time.strftime('%Y-%m-%d %H:%M') }}
-                                        {% if activity.status %}
-                                            <span style="margin-left: 10px; padding: 2px 6px; border-radius: 10px; font-size: 11px; font-weight: bold;
-                                                {% if activity.status == 'pending' %}
-                                                    background-color: #ffc107; color: #333;
-                                                {% elif activity.status == 'processing' %}
-                                                    background-color: #17a2b8; color: white;
-                                                {% elif activity.status == 'completed' %}
-                                                    background-color: #28a745; color: white;
-                                                {% elif activity.status == 'in' %}
-                                                    background-color: #28a745; color: white;
-                                                {% elif activity.status == 'out' %}
-                                                    background-color: #6c757d; color: white;
-                                                {% endif %}">
-                                                {{ activity.status | capitalize }}
-                                            </span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p style="color: #666;">暂无活动记录</p>
-                {% endif %}
-            </div>
+{% extends 'admin/base.html' %}
+
+{% block title %}管理员仪表板{% endblock %}
+{% block header %}管理员仪表板{% endblock %}
+
+{% block content %}
+    <!-- 统计卡片 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>总学生数</h3>
+            <div class="value">{{ total_students }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>总宿舍数</h3>
+            <div class="value">{{ total_dorms }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>总报修数</h3>
+            <div class="value">{{ total_repairs }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>待处理报修</h3>
+            <div class="value">{{ pending_repairs }}</div>
         </div>
     </div>
     
-    <script>
-        // 侧边栏切换函数
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
-        
-        // 点击侧边栏链接后关闭侧边栏（移动端）
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    const sidebar = document.getElementById('sidebar');
-                    if (window.innerWidth <= 768) {
-                        sidebar.classList.remove('open');
-                    }
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+    <!-- 最近活动卡片 -->
+    <div class="card">
+        <h2>最近活动</h2>
+        {% if activities %}
+            <ul style="list-style: none; padding: 0;">
+                {% for activity in activities %}
+                    <li style="padding: 15px 0; border-bottom: 1px solid #e1e5e9; display: flex; gap: 15px;">
+                        <div style="width: 8px; height: 8px; border-radius: 50%; margin-top: 8px;
+                            {% if activity.type == 'repair' %}
+                                background-color: #667eea;
+                            {% elif activity.type == 'visitor' %}
+                                background-color: #28a745;
+                            {% endif %}
+                        "></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333;">{{ activity.title }}</div>
+                            <div style="color: #666; font-size: 14px; margin: 5px 0;">{{ activity.description }}</div>
+                            <div style="color: #999; font-size: 12px;">
+                                {{ activity.time.strftime('%Y-%m-%d %H:%M') }}
+                                {% if activity.status %}
+                                    <span style="margin-left: 10px; padding: 2px 6px; border-radius: 10px; font-size: 11px; font-weight: bold;
+                                        {% if activity.status == 'pending' %}
+                                            background-color: #ffc107; color: #333;
+                                        {% elif activity.status == 'processing' %}
+                                            background-color: #17a2b8; color: white;
+                                        {% elif activity.status == 'completed' %}
+                                            background-color: #28a745; color: white;
+                                        {% elif activity.status == 'in' %}
+                                            background-color: #28a745; color: white;
+                                        {% elif activity.status == 'out' %}
+                                            background-color: #6c757d; color: white;
+                                        {% endif %}">
+                                        {{ activity.status | capitalize }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: #666;">暂无活动记录</p>
+        {% endif %}
+    </div>
+{% endblock %}
